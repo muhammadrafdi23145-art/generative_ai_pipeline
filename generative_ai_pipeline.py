@@ -137,8 +137,8 @@ Feedback:
 
 if __name__ == "__main__":
     # Ensure these paths point to your actual text files
-    article_path = "Artikel.txt"
-    feedback_path = "no2.txt"
+    article_path = "Artikel-1.txt"
+    feedback_path = "Artikel-2.txt"
 
     print("Starting AI Pipeline...\n")
 
