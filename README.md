@@ -33,12 +33,8 @@ This project demonstrates the practical application of **Generative AI** in solv
    python generative_ai_pipeline.py
 
 Repository Structure
-generative_ai_pipeline.py: Main python script containing the AI logic.
-
-AI_Generatif.ipynb: Original Jupyter Notebook with markdown outputs.
-
-Artikel.txt: Raw text data for the summarization task.
-
-no2.txt: Raw customer feedback data for the sentiment analysis task.
-
-requirements.txt: Project dependencies.
+`generative_ai_pipeline.py`: Main python script containing the AI logic.
+`AI_Generatif.ipynb`: Original Jupyter Notebook with markdown outputs.
+`Artikel.txt`: Raw text data for the summarization task.
+`no2.txt`: Raw customer feedback data for the sentiment analysis task.
+`requirements.txt`: Project dependencies.
