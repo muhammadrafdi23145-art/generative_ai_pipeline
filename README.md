@@ -41,23 +41,7 @@ This project demonstrates the practical application of **Generative AI** in solv
 ## Result
 --- Task 1: Article Summarization ---
 
-    Economic Dominance: E-commerce serves as the primary engine for Indonesia's digital economy, with its valuation projected to reach approximately USD 130 billion by 2025.
-    
-    Market Inclusivity for MSMEs: Digital platforms eliminate geographical barriers, allowing Micro, Small, and Medium Enterprises (MSMEs) in remote areas to access national and international markets.
-    
-    Stimulation of Domestic Consumption: Enhanced accessibility and intensive digital promotions drive domestic demand, contributing significantly to the national Gross Domestic Product (GDP).
-    
-    Job Creation and Efficiency: The sector fosters modern employment opportunities—such as data analysts, content creators, and logistics personnel—while reducing operational costs by eliminating the need for physical storefronts.
-    
-    Infrastructure Disparities: A significant digital divide persists between urbanized regions (Java-Bali) and outer islands, hindered by uneven internet access and high logistics expenses.
-    
-    Digital Talent Deficit: Indonesia faces a critical shortage of specialized technical labor, requiring approximately 600,000 new digital talents annually to sustain innovation.
-    
-    Regulatory and Security Concerns: The surge in online transactions increases vulnerability to cybercrime, necessitating robust legal frameworks for consumer data protection.
-    
-    Consumer Behavior Risks: Constant accessibility and aggressive sales tactics may encourage impulsive purchasing habits, potentially impacting household financial stability.
-    
-    Strategic Imperative: To ensure inclusive growth, the government must prioritize infrastructure equity and educational reform to bridge the digital gap and prevent economic polarization.
+    Economic Dominance: E-commerce serves as the primary engine for Indonesia's digital economy, with its valuation projected to reach approximately USD 130 billion by 2025. Market Inclusivity for MSMEs: Digital platforms eliminate geographical barriers, allowing Micro, Small, and Medium Enterprises (MSMEs) in remote areas to access national and international markets. Stimulation of Domestic Consumption: Enhanced accessibility and intensive digital promotions drive domestic demand, contributing significantly to the national Gross Domestic Product (GDP). Job Creation and Efficiency: The sector fosters modern employment opportunities—such as data analysts, content creators, and logistics personnel—while reducing operational costs by eliminating the need for physical storefronts. Infrastructure Disparities: A significant digital divide persists between urbanized regions (Java-Bali) and outer islands, hindered by uneven internet access and high logistics expenses. Digital Talent Deficit: Indonesia faces a critical shortage of specialized technical labor, requiring approximately 600,000 new digital talents annually to sustain innovation. Regulatory and Security Concerns: The surge in online transactions increases vulnerability to cybercrime, necessitating robust legal frameworks for consumer data protection. Consumer Behavior Risks: Constant accessibility and aggressive sales tactics may encourage impulsive purchasing habits, potentially impacting household financial stability. Strategic Imperative: To ensure inclusive growth, the government must prioritize infrastructure equity and educational reform to bridge the digital gap and prevent economic polarization.
 
 --- Task 2: Customer Feedback Analysis ---
 
