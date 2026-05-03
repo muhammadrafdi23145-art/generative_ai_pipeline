@@ -3,84 +3,146 @@
 # ==================================================
 
 import os
+import time
 from google import genai
 from IPython.display import Markdown, display
 
-# 1. Initialize API Client
-# PRO TIP: Set your API key in your environment variables instead of hardcoding it.
-# Example: export GEMINI_API_KEY="your_api_key_here"
-api_key = os.getenv("GEMINI_API_KEY")
+# ==================================================
+# 1. SETUP API KEY
+# ==================================================
 
-if not api_key:
-    raise ValueError("API Key not found. Please set the GEMINI_API_KEY environment variable.")
+API_KEY = os.getenv("GEMINI_API_KEY")
 
-client = genai.Client(api_key=api_key)
+if not API_KEY:
+    raise ValueError("API Key not found. Please set GEMINI_API_KEY environment variable.")
+
+client = genai.Client(api_key=API_KEY)
+
+# ==================================================
+# 2. CONFIG (MODEL + RETRY SYSTEM)
+# ==================================================
+
+MODELS = [
+    "gemini-3-flash-preview",  # Main priority
+    "gemini-2.0-flash"         # Fallback model
+]
+
+MAX_RETRY = 3
+RETRY_DELAY = 30  # seconds
+
+# ==================================================
+# 3. GENERATE WITH FALLBACK + RETRY
+# ==================================================
+
+def generate_with_fallback(prompt):
+    for model in MODELS:
+        for attempt in range(MAX_RETRY):
+            try:
+                print(f"Trying model: {model} (Attempt {attempt+1})")
+                
+                response = client.models.generate_content(
+                    model=model,
+                    contents=prompt
+                )
+                
+                if response and response.text:
+                    print(f"Success using {model}")
+                    return response.text
+            
+            except Exception as e:
+                print(f"Error: {e}")
+                
+                if "429" in str(e):
+                    print(f"Quota limit reached, waiting {RETRY_DELAY} seconds...")
+                    time.sleep(RETRY_DELAY)
+                else:
+                    break
+                    
+    raise RuntimeError("All models failed to generate a response.")
+
+# ==================================================
+# 4. SUMMARIZE FUNCTION
+# ==================================================
 
 def summarize_article(file_path):
-    """Reads an article and summarizes it using Generative AI."""
     print("\n--- Task 1: Article Summarization ---")
     
-    with open(file_path, "r", encoding="utf-8") as f:
-        article_text = f.read()
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            article_text = f.read()
+    except FileNotFoundError:
+        raise FileNotFoundError(f"File not found: {file_path}")
+
+    # Prevent token overload
+    article_text = article_text[:5000]
 
     prompt = f"""
-    Summarize the following article into clear and concise bullet points.
-    Requirements:
-    - Write in formal English.
-    - Use bullet point format.
-    - Keep the summary under 500 words.
-    Article:
-    {article_text}
-    """
-    
-    response = client.models.generate_content(
-        model="gemini-2.0-flash",
-        contents=prompt
-    )
-    
-    print("Summarization Complete! Here is the result:\n")
-    print(response.text)
-    return response.text
+Summarize the following article into clear and concise bullet points.
+
+Requirements:
+- Formal English
+- Bullet points
+- Max 300 words
+
+Article:
+{article_text}
+"""
+    try:
+        result = generate_with_fallback(prompt)
+        display(Markdown(result))
+        return result
+    except Exception as e:
+        print(f"Summarization failed: {e}")
+        return None
+
+# ==================================================
+# 5. ANALYZE FUNCTION
+# ==================================================
 
 def analyze_customer_feedback(file_path):
-    """Reads customer feedback and acts as a data analyst to extract insights."""
     print("\n--- Task 2: Customer Feedback Analysis ---")
     
-    with open(file_path, "r", encoding="utf-8") as f:
-        feedback = f.read()
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            feedback = f.read()
+    except FileNotFoundError:
+        raise FileNotFoundError(f"File not found: {file_path}")
 
-    prompt_feedback = f"""
-    You are a professional data analyst specializing in customer feedback interpretation.
+    # Prevent token overload
+    feedback = feedback[:5000]
 
-    Analyze the following customer feedback about a newly released perfume product and provide the following:
-    1. Perform a sentiment analysis (positive, negative, or neutral) with a brief justification.
-    2. Summarize the key strengths and weaknesses of the product based on customer opinions.
-    3. Provide at least 55 actionable recommendations to improve the product and customer satisfaction.
+    prompt = f"""
+You are a professional data analyst.
 
-    Customer Feedback Data:
-    {feedback}
-    """
-    
-    response = client.models.generate_content(
-        model="gemini-2.0-flash",
-        contents=prompt_feedback
-    )
-    
-    print("Analysis Complete! Here is the detailed report:\n")
-    print(response.text)
-    return response.text
+Analyze the feedback and provide:
+1. Sentiment analysis + reasoning
+2. Key strengths
+3. Key weaknesses
+4. 10 actionable recommendations
+
+Feedback:
+{feedback}
+"""
+    try:
+        result = generate_with_fallback(prompt)
+        display(Markdown(result))
+        return result
+    except Exception as e:
+        print(f"Analysis failed: {e}")
+        return None
+
+# ==================================================
+# 6. MAIN EXECUTION
+# ==================================================
 
 if __name__ == "__main__":
-    # Define file paths (Ensure these files exist in your directory)
+    # Ensure these paths point to your actual text files
     article_path = "Artikel.txt"
     feedback_path = "no2.txt"
-    
-    # Execute AI Pipelines
-    try:
-        summary_result = summarize_article(article_path)
-        analysis_result = analyze_customer_feedback(feedback_path)
-        
-        # Note: If running in Jupyter Notebook/Colab, you can use display(Markdown(result))
-        
-    except FileNotFoundError as e:
-        print(f"Error: {e}. Please make sure the text files are in the correct directory.")
+
+    print("Starting AI Pipeline...\n")
+
+    summary_result = summarize_article(article_path)
+    analysis_result = analyze_customer_feedback(feedback_path)
+
+    print("\nPipeline execution completed.")
