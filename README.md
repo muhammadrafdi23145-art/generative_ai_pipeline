@@ -16,8 +16,8 @@ This project demonstrates the practical application of **Generative AI** in solv
 
 ## Tech Stack
 * **Language:** Python
-* **Generative AI:** Google Gemini API (`gemini-2.0-flash`)
-* **Environment:** Jupyter Notebook / Google Colab
+* **Generative AI:** Google Gemini API (`gemini-3-flash-preview`, `gemini-2.5-flash`, `gemini-2.0-flash`, `gemini-1.5-pro`)
+* **Environment:** Visual Studio Code, Jupyter Notebook / Google Colab
 * **Techniques:** Prompt Engineering, Constraint Modeling, Role-prompting.
 
 ## How to Run
