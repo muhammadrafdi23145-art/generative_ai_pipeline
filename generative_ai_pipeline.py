@@ -1,148 +1,141 @@
-# ==================================================
-# Generative AI: Automated Text Analysis & Summarization
-# ==================================================
+# ==============================================================================
+# Generative AI Task: Text Summarization & Customer Feedback Analysis
+# Designed for Jupyter Notebook / Google Colab (.ipynb)
+# ==============================================================================
 
 import os
 import time
+import getpass
 from google import genai
 from IPython.display import Markdown, display
 
-# ==================================================
-# 1. SETUP API KEY
-# ==================================================
-
+# ------------------------------------------------------------------------------
+# 1. SETUP API KEY (Secure input for Jupyter/Colab)
+# ------------------------------------------------------------------------------
 API_KEY = os.getenv("GEMINI_API_KEY")
 
 if not API_KEY:
-    raise ValueError("API Key not found. Please set GEMINI_API_KEY environment variable.")
+    raise ValueError("API Key is required to run the model.")
 
 client = genai.Client(api_key=API_KEY)
 
-# ==================================================
-# 2. CONFIG (MODEL + RETRY SYSTEM)
-# ==================================================
-
+# ------------------------------------------------------------------------------
+# 2. CONFIGURATION (MODELS & RETRY SYSTEM)
+# ------------------------------------------------------------------------------
 MODELS = [
-    "gemini-3-flash-preview",  # Main priority
-    "gemini-2.0-flash"         # Fallback model
+    "gemini-3-flash-preview"
+    "gemini-2.5-flash",
+    "gemini-2.0-flash",        
+    "gemini-1.5-pro"
 ]
 
 MAX_RETRY = 3
-RETRY_DELAY = 30  # seconds
-
-# ==================================================
-# 3. GENERATE WITH FALLBACK + RETRY
-# ==================================================
+RETRY_DELAY = 10  # seconds
 
 def generate_with_fallback(prompt):
+    """Generates AI content with an automatic fallback and retry mechanism."""
     for model in MODELS:
         for attempt in range(MAX_RETRY):
             try:
-                print(f"Trying model: {model} (Attempt {attempt+1})")
-                
+                print(f"[*] Attempting generation with model: {model} (Attempt {attempt+1}/{MAX_RETRY})...")
                 response = client.models.generate_content(
                     model=model,
                     contents=prompt
                 )
-                
                 if response and response.text:
-                    print(f"Success using {model}")
+                    print(f"[+] Success using {model}!\n")
                     return response.text
-            
             except Exception as e:
-                print(f"Error: {e}")
-                
-                if "429" in str(e):
-                    print(f"Quota limit reached, waiting {RETRY_DELAY} seconds...")
+                print(f"[-] Error with {model}: {e}")
+                if "429" in str(e) or "quota" in str(e).lower():
+                    print(f"[!] Rate limit hit. Waiting for {RETRY_DELAY} seconds before retrying...")
                     time.sleep(RETRY_DELAY)
                 else:
-                    break
-                    
-    raise RuntimeError("All models failed to generate a response.")
+                    break # Move to the next model if it's not a quota issue
+    raise RuntimeError("All models failed to generate a response. Please check your API key and network.")
 
-# ==================================================
-# 4. SUMMARIZE FUNCTION
-# ==================================================
-
-def summarize_article(file_path):
-    print("\n--- Task 1: Article Summarization ---")
+# ------------------------------------------------------------------------------
+# 3. TASK 1: ARTICLE SUMMARIZATION
+# ------------------------------------------------------------------------------
+def run_task_1_summarization(file_path):
+    display(Markdown("## Task 1: Article Summarization"))
     
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             article_text = f.read()
     except FileNotFoundError:
-        raise FileNotFoundError(f"File not found: {file_path}")
+        print(f"[!] File '{file_path}' not found. Please ensure the file is uploaded.")
+        return
 
-    # Prevent token overload
-    article_text = article_text[:5000]
-
+    # PROMPT ENGINEERING: Setting strict constraints (Bullet points, <500 words, Formal English)
     prompt = f"""
-Summarize the following article into clear and concise bullet points.
+    Please summarize the following article based on these strict requirements:
+    1. The summary MUST be formatted as bullet points.
+    2. The total length MUST NOT exceed 500 words.
+    3. The summary MUST be written in English.
+    4. You MUST use a highly formal, professional, and academic tone.
 
-Requirements:
-- Formal English
-- Bullet points
-- Max 300 words
-
-Article:
-{article_text}
-"""
-    try:
-        result = generate_with_fallback(prompt)
+    Article Text to Summarize:
+    \"\"\"
+    {article_text}
+    \"\"\"
+    """
+    
+    result = generate_with_fallback(prompt)
+    if result:
         display(Markdown(result))
-        return result
-    except Exception as e:
-        print(f"Summarization failed: {e}")
-        return None
 
-# ==================================================
-# 5. ANALYZE FUNCTION
-# ==================================================
-
-def analyze_customer_feedback(file_path):
-    print("\n--- Task 2: Customer Feedback Analysis ---")
+# ------------------------------------------------------------------------------
+# 4. TASK 2: CUSTOMER FEEDBACK ANALYSIS
+# ------------------------------------------------------------------------------
+def run_task_2_feedback_analysis(file_path):
+    display(Markdown("## Task 2: Customer Feedback Analysis (Perfume Product)"))
     
     try:
         with open(file_path, "r", encoding="utf-8") as f:
-            feedback = f.read()
+            feedback_text = f.read()
     except FileNotFoundError:
-        raise FileNotFoundError(f"File not found: {file_path}")
+        print(f"[!] File '{file_path}' not found. Please ensure the file is uploaded.")
+        return
 
-    # Prevent token overload
-    feedback = feedback[:5000]
-
+    # PROMPT ENGINEERING: Contextualizing the data and forcing a minimum of 55 recommendations
     prompt = f"""
-You are a professional data analyst.
+    You are a Senior Data Analyst and Product Strategist. 
+    Context: The following data is a collection of customer feedback regarding a newly released perfume product.
 
-Analyze the feedback and provide:
-1. Sentiment analysis + reasoning
-2. Key strengths
-3. Key weaknesses
-4. 10 actionable recommendations
+    Analyze the feedback and generate a comprehensive report with the following specific sections:
+    
+    1. Sentiment Analysis: Provide a detailed sentiment analysis (Positive, Negative, Neutral distribution) based on the customer feedback.
+    2. Product Strengths & Weaknesses: Summarize the core strengths and critical weaknesses of the perfume.
+    3. 55 Actionable Recommendations: You MUST provide a numbered list of AT LEAST 55 distinct, actionable recommendations for product improvement, marketing, packaging, and customer service. Do not stop until you reach 55 points.
 
-Feedback:
-{feedback}
-"""
-    try:
-        result = generate_with_fallback(prompt)
+    Customer Feedback Data:
+    \"\"\"
+    {feedback_text}
+    \"\"\"
+    """
+    
+    result = generate_with_fallback(prompt)
+    if result:
         display(Markdown(result))
-        return result
-    except Exception as e:
-        print(f"Analysis failed: {e}")
-        return None
 
-# ==================================================
-# 6. MAIN EXECUTION
-# ==================================================
-
+# ------------------------------------------------------------------------------
+# 5. MAIN EXECUTION BLOCK
+# ------------------------------------------------------------------------------
 if __name__ == "__main__":
-    # Ensure these paths point to your actual text files
-    article_path = "Artikel-1.txt"
-    feedback_path = "Artikel-2.txt"
-
-    print("Starting AI Pipeline...\n")
-
-    summary_result = summarize_article(article_path)
-    analysis_result = analyze_customer_feedback(feedback_path)
-
-    print("\nPipeline execution completed.")
+    ARTICLE_FILE_PATH = "Article.txt" 
+    FEEDBACK_FILE_PATH = "Customer Feedback.txt"
+    
+    print("\n" + "="*50)
+    print("STARTING AI GENERATIVE PIPELINE")
+    print("="*50 + "\n")
+    
+    run_task_1_summarization(ARTICLE_FILE_PATH)
+    
+    print("\n" + "-"*50 + "\n")
+    
+    run_task_2_feedback_analysis(FEEDBACK_FILE_PATH)
+    
+    print("\n" + "="*50)
+    print("PIPELINE EXECUTION COMPLETED")
+    print("="*50)
